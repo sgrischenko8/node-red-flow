@@ -1,0 +1,267 @@
+[
+    {
+        "id": "0c645f2b7a37fd13",
+        "type": "tab",
+        "label": "GetRepeatedTask API",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "7d28eb0ce48402b9",
+        "type": "function",
+        "z": "0c645f2b7a37fd13",
+        "name": "prepare response",
+        "func": "const body = msg.req.body;\n\nconst {date_close, merchant, taskNUmber}= body;\n\nfunction filterCamWithoutSignal() {\n const camWithoutSignal = [];\n\n for (const key in body) {\n  if (key.startsWith('cam') && body[key]=== 1) {\n  camWithoutSignal.push(key);\n  }\n }\n return camWithoutSignal;\n}\n\nconst camerasWithoutSignal = filterCamWithoutSignal(); // array like ['cam2', 'cam4']\n\nlet matchTask = {};\nconst matchedTasks=[];\n\nmsg.payload.map(task=>{\n matchTask = {};\n matchTask.taskNUmber = task.taskNUmber;\n matchTask.date_close = task.date_close;\n\n    const matchedCam = camerasWithoutSignal.filter(cam=>{if (task[cam]===1){matchTask[cam]=1}})\n if (matchedCam){   \n    matchedTasks.push(matchTask);\n    }\n})\n\n\nmsg.payload = matchedTasks;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1170,
+        "y": 340,
+        "wires": [
+            [
+                "290b1478d69ca9e3",
+                "3b8897d81bccf7df"
+            ]
+        ]
+    },
+    {
+        "id": "5f854c1614a0dc5c",
+        "type": "http in",
+        "z": "0c645f2b7a37fd13",
+        "name": "GetRepeatedTask",
+        "url": "/GetRepeatedTask",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 90,
+        "y": 340,
+        "wires": [
+            [
+                "92ba468fdb92aa86"
+            ]
+        ]
+    },
+    {
+        "id": "92ba468fdb92aa86",
+        "type": "function",
+        "z": "0c645f2b7a37fd13",
+        "name": "validationMiddleware",
+        "func": "function checkBodyData(data) {\n    const allowedKeys = ['merchant', 'taskNUmber', 'date_close', 'cam1', 'cam2', 'cam3','cam4']; \n    const { merchant, taskNUmber, date_close, cam1, cam2, cam3, cam4 } = data;\n\n    for (const key in data) {\n        if (!allowedKeys.includes(key)) {\n            return { error: `Поле \"${key}\" не дозволене` };\n        }  \n    }\n    \n    const absent = allowedKeys.find(el=>!data.hasOwnProperty(el));\n    if (absent) \n    { return { error: `Не вистачає поля \"${absent}\"` }; };\n\n    if (typeof merchant !== 'string') {\n        return { error: 'Поле \"merchant\" має бути строкою' };\n    }\n    if (typeof taskNUmber !== 'number') {\n        return { error: 'Поле \"taskNUmber\" має бути числом' };\n    }\n    if (typeof date_close !== 'string') {\n        return { error: 'Поле \"date_close\" має бути строкою' };\n    }\n\n    let response = null;\n    \n   [1, 2, 3, 4].forEach((key) => {\n        const keyName = 'cam' + key;\n        \n        if (typeof data[keyName] !== 'number') {\n            response= { error: `Поле ${keyName} має бути числом` };\n        }\n\n        if (!response && data[keyName]!==1 && data[keyName]!==0) { \n            response= { error: `Поле ${keyName} має бути 1 або 0` }\n        }        \n    })\n    if (cam1 === 0 && cam2 === 0 && cam3 === 0 && cam4 === 0) {\n         response = { error: 'Не має камери без сигналу' }; \n    }\n   \n    return response   \n}; \n\nfunction handleHttpRequest() {\n    const errors = checkBodyData(msg.payload); \n\n    if (errors) {\n        msg.statusCode=400\n        msg.payload = errors;\n    } else {\n        msg.statusCode=201;\n    }\n};\n\nhandleHttpRequest();\n\nreturn msg;\n\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 300,
+        "y": 340,
+        "wires": [
+            [
+                "eda035a6e21cfd5b",
+                "c3f793efc06665ea"
+            ]
+        ]
+    },
+    {
+        "id": "290b1478d69ca9e3",
+        "type": "http response",
+        "z": "0c645f2b7a37fd13",
+        "name": "response to GetRepeatedTask",
+        "statusCode": "",
+        "headers": {
+            "content-type": "application/json"
+        },
+        "x": 1450,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "f9eeb16fcef4e25d",
+        "type": "catch",
+        "z": "0c645f2b7a37fd13",
+        "name": "",
+        "scope": null,
+        "uncaught": false,
+        "x": 120,
+        "y": 640,
+        "wires": [
+            [
+                "51e9bb4fe7803b03"
+            ]
+        ]
+    },
+    {
+        "id": "51e9bb4fe7803b03",
+        "type": "debug",
+        "z": "0c645f2b7a37fd13",
+        "name": "errorLog",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 360,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "eda035a6e21cfd5b",
+        "type": "switch",
+        "z": "0c645f2b7a37fd13",
+        "name": "switch ok",
+        "property": "statusCode",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "201",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 500,
+        "y": 540,
+        "wires": [
+            [
+                "1539b2de6bbc957b"
+            ]
+        ]
+    },
+    {
+        "id": "1539b2de6bbc957b",
+        "type": "file in",
+        "z": "0c645f2b7a37fd13",
+        "name": "taskHistory",
+        "filename": "taskHistory.json",
+        "filenameType": "str",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 690,
+        "y": 460,
+        "wires": [
+            [
+                "f9f699a4e64216ad"
+            ]
+        ]
+    },
+    {
+        "id": "f9f699a4e64216ad",
+        "type": "json",
+        "z": "0c645f2b7a37fd13",
+        "name": "",
+        "property": "payload",
+        "action": "obj",
+        "pretty": false,
+        "x": 830,
+        "y": 460,
+        "wires": [
+            [
+                "1e2a283737649dda"
+            ]
+        ]
+    },
+    {
+        "id": "1e2a283737649dda",
+        "type": "function",
+        "z": "0c645f2b7a37fd13",
+        "name": "tenDaysFilter",
+        "func": "function getTasksFromLast10Days(){\n   const closeDate = new Date(msg.req.body.date_close).getTime();\n\n   const tenDays = 10* (1000 * 60 * 60 * 24);\n\n  // @ts-ignore\n  const tenDaysAgo = closeDate - tenDays;  \n\n  msg.payload = msg.payload.filter(task=>closeDate > new Date(task.date_close).getTime() && new Date(task.date_close).getTime() > tenDaysAgo)\n};\n\ngetTasksFromLast10Days();\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 970,
+        "y": 460,
+        "wires": [
+            [
+                "7d28eb0ce48402b9"
+            ]
+        ]
+    },
+    {
+        "id": "16388279d16edf77",
+        "type": "comment",
+        "z": "0c645f2b7a37fd13",
+        "name": "backend imitation",
+        "info": "there is the imitation of backend fetching here",
+        "x": 600,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "0635484e2ee5164d",
+        "type": "GSheet",
+        "z": "0c645f2b7a37fd13",
+        "creds": "",
+        "method": "append",
+        "action": "",
+        "sheet": "1oC2JDGVNDaewTNysMC4jUuGy5nXvbDb27AwxHPgoHU8",
+        "cells": "Sheet1",
+        "flatten": false,
+        "name": "",
+        "x": 1650,
+        "y": 540,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3b8897d81bccf7df",
+        "type": "function",
+        "z": "0c645f2b7a37fd13",
+        "name": "prepare object for Gsheet",
+        "func": "const {date_close, merchant, taskNUmber}= msg.req.body;\n\nfunction customStringify(array) {\n  return '[' + array.map(obj =>\n    '{' + Object.entries(obj).map(([key, value]) =>\n      `${key}:${JSON.stringify(value)}`\n    ).join(',') + '}'\n  ).join(', ') + ']';\n}\n\nreturn {  payload: [date_close, merchant, taskNUmber, customStringify(msg.payload)] }",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1430,
+        "y": 540,
+        "wires": [
+            [
+                "0635484e2ee5164d"
+            ]
+        ]
+    },
+    {
+        "id": "c3f793efc06665ea",
+        "type": "switch",
+        "z": "0c645f2b7a37fd13",
+        "name": "switch error",
+        "property": "statusCode",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "400",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 510,
+        "y": 140,
+        "wires": [
+            [
+                "290b1478d69ca9e3"
+            ]
+        ]
+    }
+]
