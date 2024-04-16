@@ -1,0 +1,56 @@
+[
+    {
+        "merchant": "system5782",
+        "taskNUmber": 735957,
+        "date_close": "2024-01-22 22: 42: 12",
+        "cam1": 0,
+        "cam2": 1,
+        "cam3": 0,
+        "cam4": 0
+    },
+    {
+        "merchant": "system5782",
+        "taskNUmber": 734340,
+        "date_close": "2024-01-29 12: 54: 12",
+        "cam1": 0,
+        "cam2": 0,
+        "cam3": 0,
+        "cam4": 1
+    },
+    {
+        "merchant": "system5782",
+        "taskNUmber": 636330,
+        "date_close": "2024-01-25 20: 12: 12",
+        "cam1": 1,
+        "cam2": 0,
+        "cam3": 0,
+        "cam4": 1
+    },
+    {
+        "merchant": "system5782",
+        "taskNUmber": 356680,
+        "date_close": "2024-01-22 15: 56: 32",
+        "cam1": 1,
+        "cam2": 1,
+        "cam3": 0,
+        "cam4": 0
+    },
+    {
+        "merchant": "system1254",
+        "taskNUmber": 432963,
+        "date_close": "2024-02-01 16: 34: 12 ",
+        "cam1": 0,
+        "cam2": 1,
+        "cam3": 0,
+        "cam4": 1
+    },
+    {
+        "merchant": "system5782",
+        "taskNUmber": 356680,
+        "date_close": "2024-02-02 19: 56: 32",
+        "cam1": 1,
+        "cam2": 1,
+        "cam3": 0,
+        "cam4": 1
+    }
+]
